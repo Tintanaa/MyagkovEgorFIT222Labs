@@ -1,45 +1,26 @@
-﻿using ClosedXML.Excel;
-using System.Data;
-DataTable _dt = new DataTable();
-_dt = ImportSheet("");
-Dijkstra(_dt,0,9);
-static DataTable ImportSheet(string fileName)
+﻿string[] lines = File.ReadAllLines(@"path/to/text");
+int[,] num = new int[lines.Length, lines[0].Split(' ').Length];
+for (int i = 0; i < lines.Length; i++)
 {
-    var datatable = new DataTable();
-    var workbook = new XLWorkbook(fileName);
-    var xlWorksheet = workbook.Worksheet(1);
-    var range = xlWorksheet.Range(xlWorksheet.FirstCellUsed(), xlWorksheet.LastCellUsed());
-
-    var col = range.ColumnCount();
-    var row = range.RowCount();
-
-    //if a datatable already exists, clear the existing table 
-    datatable.Clear();
-    for (var i = 1; i <= col; i++)
-    {
-        var column = xlWorksheet.Cell(1, i);
-        datatable.Columns.Add(column.Value.ToString());
-    }
-
-    var firstHeadRow = 0;
-    foreach (var item in range.Rows())
-    {
-        if (firstHeadRow != 0)
-        {
-            var array = new object[col];
-            for (var y = 1; y <= col; y++)
-            {
-                array[y - 1] = item.Cell(y).Value;
-            }
-
-            datatable.Rows.Add(array);
-        }
-        firstHeadRow++;
-    }
-    return datatable;
+    string[] temp = lines[i].Split(' ');
+    for (int j = 0; j < temp.Length; j++)
+        num[i, j] = Convert.ToInt32(temp[j]);
 }
+for (int i = 0; i < num.GetLength(0); i++)
 
-int MinimumDistance(int[] distance, bool[] shortestPathTreeSet, int verticesCount)
+    for (int j = 0; j < num.GetLength(1); j++)
+        Console.WriteLine(num[i, j]);
+Dijkstra(num, 0, 9);
+/*
+ * Матрица в виде
+ * 0 1 2 3 4
+ * 5 6 7 8 9
+ * 10 11 12 13 14
+ * 15 16 17 18 19
+ * ..............
+ */
+
+static int MinimumDistance(int[] distance, bool[] shortestPathTreeSet, int verticesCount)
 {
     int min = int.MaxValue;
     int minIndex = 0;
@@ -56,15 +37,14 @@ int MinimumDistance(int[] distance, bool[] shortestPathTreeSet, int verticesCoun
     return minIndex;
 }
 
-void Print(int[] distance, int verticesCount)
+static void Print(int[] distance, int verticesCount)
 {
     Console.WriteLine("Vertex    Distance from source");
 
     for (int i = 0; i < verticesCount; ++i)
         Console.WriteLine("{0}\t  {1}", i, distance[i]);
 }
-
-void Dijkstra(int[,] graph, int source, int verticesCount)
+static void Dijkstra(int[,] graph, int source, int verticesCount)
 {
     int[] distance = new int[verticesCount];
     bool[] shortestPathTreeSet = new bool[verticesCount];
